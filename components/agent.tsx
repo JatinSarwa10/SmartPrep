@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import { vapi } from "@/lib/vapi.sdk";
+import { interviewer } from "@/constants";
 
 enum CallStatus {
   INACTIVE = "INACTIVE",
@@ -85,35 +86,33 @@ const Agent = ({
       setLastMessage(messages[messages.length - 1].content);
     }
 
-    // const handleGenerateFeedback = async (messages: SavedMessage[]) => {
-    //   console.log("handleGenerateFeedback");
+    const handleGenerateFeedback = async (messages: SavedMessage[]) => {
+      console.log("handleGenerateFeedback");
 
-    //   const { success, feedbackId: id } = await createFeedback({
-    //     interviewId: interviewId!,
-    //     userId: userId!,
-    //     transcript: messages,
-    //     feedbackId,
-    //   });
+      const { success,  id } ={
+        success: true,
+          id:'feedback-id'
+      };
 
-    //   if (success && id) {
-    //     router.push(`/interview/${interviewId}/feedback`);
-    //   } else {
-    //     console.error("Error saving feedback");
-    //     router.push("/");
-    //   }
-    // };
+      if (success && id) {
+        router.push(`/interview/${interviewId}/feedback`);
+      } else {
+        console.error("Error saving feedback");
+        router.push("/");
+      }
+    };
 
     if (callStatus === CallStatus.FINISHED) {
       if (type === "generate") {
         router.push("/");
       } else {
-        // handleGenerateFeedback(messages);
+        handleGenerateFeedback(messages);
       }
     }
   }, [messages, callStatus, feedbackId, interviewId, router, type, userId]);
 
   const handleCall = async () => {
-setCallStatus(CallStatus.CONNECTING);
+  setCallStatus(CallStatus.CONNECTING);
 
   const workflowId = process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID;
   if (!workflowId) {
@@ -144,11 +143,11 @@ setCallStatus(CallStatus.CONNECTING);
           .join("\n");
       }
 
-      await vapi.start(
-        undefined, // agentId
-        undefined, // agentVersion
-        undefined, // sessionId
-        workflowId, // workflowId
+      await vapi.start( interviewer ,
+        // undefined, // agentId
+        // undefined, // agentVersion
+        // undefined, // sessionId
+        // workflowId, // workflowId
         {
           variableValues: {
             questions: formattedQuestions,
